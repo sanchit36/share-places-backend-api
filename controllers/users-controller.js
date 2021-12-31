@@ -39,7 +39,7 @@ exports.signup = async (req, res, next) => {
     email,
     image: 'dummy_image',
     password,
-    places: 'assaslasla',
+    places: [],
   });
 
   try {
