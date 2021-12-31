@@ -1,4 +1,6 @@
+const { validationResult } = require('express-validator');
 const { v4: uuid } = require('uuid');
+
 const HttpError = require('../models/http-error');
 
 const DUMMY_USERS = [
@@ -15,6 +17,12 @@ exports.getUsers = (req, res, next) => {
 };
 
 exports.signup = (req, res, next) => {
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.status(422).json(errors);
+  }
+
   const { name, email, password } = req.body;
 
   const hasUser = DUMMY_USERS.find((u) => u.email === email);
@@ -36,6 +44,12 @@ exports.signup = (req, res, next) => {
 };
 
 exports.login = (req, res, next) => {
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.status(422).json(errors);
+  }
+
   const { email, password } = req.body;
 
   const identifiedUser = DUMMY_USERS.find((u) => u.email === email);
