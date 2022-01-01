@@ -37,7 +37,7 @@ exports.signup = async (req, res, next) => {
   const createdUser = new User({
     name,
     email,
-    image: 'dummy_image',
+    image: req.file.path,
     password,
     places: [],
   });
