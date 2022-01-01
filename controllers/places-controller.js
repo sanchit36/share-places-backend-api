@@ -105,6 +105,7 @@ exports.createPlace = async (req, res, next) => {
     await sess.commitTransaction();
     res.status(201).json({ place: createdPlace });
   } catch (error) {
+    console.log(error);
     return next(new HttpError('Creating place failed, please try again', 500));
   }
 };
