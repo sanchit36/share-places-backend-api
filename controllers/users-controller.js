@@ -57,7 +57,7 @@ exports.signup = async (req, res, next) => {
       process.env.ACCESS_TOKEN_SECRET,
       { expiresIn: '1h' }
     );
-  } catch (error) {
+  } catch (err) {
     const error = new HttpError('Sign up Failed', 500);
     return next(error);
   }
@@ -83,12 +83,20 @@ exports.login = async (req, res, next) => {
     return next(error);
   }
 
-  const isMatch = await identifiedUser.comparePassword(password);
-
-  if (!identifiedUser || !isMatch) {
+  if (!identifiedUser) {
     const error = new HttpError(
       'Could not identify user, credentials seems to be wrong',
-      401
+      403
+    );
+    return next(error);
+  }
+
+  const isMatch = await identifiedUser.comparePassword(password);
+
+  if (!isMatch) {
+    const error = new HttpError(
+      'Could not identify user, credentials seems to be wrong',
+      403
     );
     return next(error);
   }
@@ -100,7 +108,7 @@ exports.login = async (req, res, next) => {
       process.env.ACCESS_TOKEN_SECRET,
       { expiresIn: '1h' }
     );
-  } catch (error) {
+  } catch (err) {
     const error = new HttpError('Logging in failed, please try again', 500);
     return next(error);
   }

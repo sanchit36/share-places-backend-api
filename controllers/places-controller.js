@@ -57,12 +57,12 @@ exports.getPlacesByUserId = async (req, res, next) => {
 
 exports.createPlace = async (req, res, next) => {
   const errors = validationResult(req);
-  if (!errors.isEmpty()) {
+  if (!errors.isEmpty() || !req.file) {
     return next(
       new HttpError('Invalid inputs passed, please check your data.', 422)
     );
   }
-  console.log(req.file);
+
   const { title, description, address, creator } = req.body;
 
   let coordinates;
@@ -123,24 +123,35 @@ exports.updatePlace = async (req, res, next) => {
   const { title, description } = req.body;
   const placeId = req.params.pid;
 
+  let place;
   try {
-    const place = await Place.findByIdAndUpdate(
-      placeId,
-      { title, description },
-      { new: true }
-    );
-    if (!place) {
-      return next(
-        new HttpError('Could not find place for the provided id', 404)
-      );
-    }
-
-    res.json({ place: place.toObject({ getters: true }) });
+    place = await Place.findById(placeId);
   } catch (err) {
     return next(
       new HttpError('Something went wrong, could not update place', 500)
     );
   }
+
+  if (!place) {
+    return next(new HttpError('Could not find place for the provided id', 404));
+  }
+
+  if (place.creator.toString() !== req.userData.userId) {
+    return next(new HttpError('You are not allowed to edit this place', 401));
+  }
+
+  place.title = title;
+  place.description = description;
+
+  try {
+    await place.save();
+  } catch (err) {
+    return next(
+      new HttpError('Something went wrong, could not update place', 500)
+    );
+  }
+
+  res.json({ place: place.toObject({ getters: true }) });
 };
 
 exports.deletePlace = async (req, res, next) => {
@@ -155,6 +166,10 @@ exports.deletePlace = async (req, res, next) => {
 
   if (!place) {
     return next(new HttpError('Could not find place for the provided id', 404));
+  }
+
+  if (place.creator.id !== req.userData.userId) {
+    return next(new HttpError('You are not allowed to edit this place', 401));
   }
 
   const imagePath = place.image;
