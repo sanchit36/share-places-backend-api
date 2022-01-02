@@ -34,6 +34,8 @@ app.use((req, res, next) => {
 });
 
 app.use((error, req, res, next) => {
+  console.log(error);
+
   if (req.file) {
     fs.unlink(req.file.path, (err) => {});
   }
@@ -55,4 +57,6 @@ mongoose
   .then(() => {
     app.listen(process.env.PORT || 5000);
   })
-  .catch((error) => {});
+  .catch((error) => {
+    console.log(error);
+  });
