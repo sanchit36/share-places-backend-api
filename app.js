@@ -53,6 +53,6 @@ mongoose
     pass: process.env.DB_PASSWORD,
   })
   .then(() => {
-    app.listen(5000);
+    app.listen(process.env.POST || 5000);
   })
   .catch((error) => {});
