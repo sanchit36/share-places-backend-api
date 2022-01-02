@@ -35,12 +35,8 @@ app.use((req, res, next) => {
 });
 
 app.use((error, req, res, next) => {
-  console.log(error);
-
   if (req.file) {
-    fs.unlink(req.file.path, (err) => {
-      console.log(err);
-    });
+    fs.unlink(req.file.path, (err) => {});
   }
 
   if (res.headSent) {
@@ -58,10 +54,6 @@ mongoose
     pass: process.env.DB_PASSWORD,
   })
   .then(() => {
-    app.listen(5000, () => {
-      console.log('Server is listening on port 5000');
-    });
+    app.listen(5000);
   })
-  .catch((error) => {
-    console.log(error);
-  });
+  .catch((error) => {});
