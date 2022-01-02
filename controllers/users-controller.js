@@ -16,7 +16,7 @@ exports.getUsers = async (req, res, next) => {
 
 exports.signup = async (req, res, next) => {
   const errors = validationResult(req);
-  if (!errors.isEmpty()) {
+  if (!errors.isEmpty() || !req.image) {
     return res.status(422).json(errors);
   }
 
@@ -38,7 +38,7 @@ exports.signup = async (req, res, next) => {
   const createdUser = new User({
     name,
     email,
-    image: req.file.path,
+    image: req.image,
     password,
     places: [],
   });

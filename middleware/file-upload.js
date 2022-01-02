@@ -1,5 +1,8 @@
 const multer = require('multer');
-const { v1: uuid } = require('uuid');
+const DatauriParser = require('datauri/parser');
+const path = require('path');
+const HttpError = require('../models/http-error');
+const { uploader } = require('../config/cloudinaryConfig');
 
 const MIME_TYPE_MAP = {
   'image/png': 'png',
@@ -7,17 +10,13 @@ const MIME_TYPE_MAP = {
   'image/jpg': 'jpg',
 };
 
+const storage = multer.memoryStorage();
+
+const parser = new DatauriParser();
+
 const fileUpload = multer({
   limits: 500000,
-  storage: multer.diskStorage({
-    destination: (req, file, cb) => {
-      cb(null, 'uploads/images');
-    },
-    filename: (req, file, cb) => {
-      const ext = MIME_TYPE_MAP[file.mimetype];
-      cb(null, uuid() + '.' + ext);
-    },
-  }),
+  storage,
   fileFilter: (req, file, cb) => {
     const isValid = !!MIME_TYPE_MAP[file.mimetype];
     let error = isValid ? null : new Error('Invalid file type');
@@ -25,4 +24,29 @@ const fileUpload = multer({
   },
 });
 
-module.exports = fileUpload;
+const dataUri = (req) =>
+  parser.format(
+    path.extname(req.file.originalname).toString(),
+    req.file.buffer
+  );
+
+const uploadToCloud = (req, res, next) => {
+  if (req.file) {
+    const file = dataUri(req).content;
+    uploader
+      .upload(file)
+      .then((result) => {
+        const image = result.url;
+        req.image = image;
+        return next();
+      })
+      .catch((err) => {
+        console.log(err);
+        return next(new HttpError('Could not upload image, try again.', 500));
+      });
+  } else {
+    return next(new HttpError('Could not upload image, try again.', 500));
+  }
+};
+
+module.exports = { fileUpload, uploadToCloud };

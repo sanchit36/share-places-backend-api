@@ -1,5 +1,3 @@
-const fs = require('fs');
-
 const { validationResult } = require('express-validator');
 const mongoose = require('mongoose');
 
@@ -57,7 +55,7 @@ exports.getPlacesByUserId = async (req, res, next) => {
 
 exports.createPlace = async (req, res, next) => {
   const errors = validationResult(req);
-  if (!errors.isEmpty() || !req.file) {
+  if (!errors.isEmpty() || !req.image) {
     return next(
       new HttpError('Invalid inputs passed, please check your data.', 422)
     );
@@ -77,7 +75,7 @@ exports.createPlace = async (req, res, next) => {
     description,
     address,
     location: coordinates,
-    image: req.file.path,
+    image: req.image,
     creator: req.userData.userId,
   });
 
@@ -184,8 +182,6 @@ exports.deletePlace = async (req, res, next) => {
       new HttpError('Something went wrong, could not delete place.', 500)
     );
   }
-
-  fs.unlink(imagePath, (err) => {});
 
   res.status(200).json({ message: 'Deleted place.' });
 };

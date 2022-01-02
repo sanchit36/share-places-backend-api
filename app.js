@@ -1,4 +1,3 @@
-const fs = require('fs');
 const path = require('path');
 
 const express = require('express');
@@ -8,10 +7,13 @@ const mongoose = require('mongoose');
 const placesRouter = require('./routes/places-router');
 const usersRouter = require('./routes/users-router');
 const HttpError = require('./models/http-error');
+const { cloudinaryConfig } = require('./config/cloudinaryConfig');
 
 const app = express();
 
 app.use(bodyParser.json());
+
+app.use('*', cloudinaryConfig);
 
 app.use('/uploads/images', express.static(path.join('uploads', 'images')));
 
@@ -35,10 +37,6 @@ app.use((req, res, next) => {
 
 app.use((error, req, res, next) => {
   console.log(error);
-
-  if (req.file) {
-    fs.unlink(req.file.path, (err) => {});
-  }
 
   if (res.headSent) {
     return next(error);
