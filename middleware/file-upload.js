@@ -30,6 +30,14 @@ const dataUri = (req) =>
     req.file.buffer
   );
 
+const getPublicIdForUrl = (url) => {
+  try {
+    const x = url.split('/');
+    const id = x[x.length - 1].split('.')[0];
+    return id;
+  } catch (err) {}
+};
+
 const uploadToCloud = (req, res, next) => {
   if (req.file) {
     const file = dataUri(req).content;
@@ -49,4 +57,4 @@ const uploadToCloud = (req, res, next) => {
   }
 };
 
-module.exports = { fileUpload, uploadToCloud };
+module.exports = { fileUpload, uploadToCloud, getPublicIdForUrl };

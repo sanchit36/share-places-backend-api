@@ -5,6 +5,8 @@ const HttpError = require('../models/http-error');
 const getCoordinatesFromAddress = require('../util/location');
 const Place = require('../models/place');
 const User = require('../models/user');
+const { getPublicIdForUrl } = require('../middleware/file-upload');
+const { uploader } = require('../config/cloudinaryConfig');
 
 exports.getPlaceById = async (req, res, next) => {
   const placeId = req.params.pid;
@@ -168,7 +170,15 @@ exports.deletePlace = async (req, res, next) => {
     return next(new HttpError('You are not allowed to edit this place', 401));
   }
 
-  const imagePath = place.image;
+  const imageURL = place.image;
+
+  const id = getPublicIdForUrl(imageURL);
+
+  try {
+    uploader.destroy(id);
+  } catch (error) {
+    console.log(error);
+  }
 
   try {
     const sess = await mongoose.startSession();

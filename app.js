@@ -38,6 +38,16 @@ app.use((req, res, next) => {
 app.use((error, req, res, next) => {
   console.log(error);
 
+  if (req.image) {
+    const id = getPublicIdForUrl(req.image);
+
+    try {
+      uploader.destroy(id);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   if (res.headSent) {
     return next(error);
   }
