@@ -7,7 +7,8 @@ const mongoose = require('mongoose');
 const placesRouter = require('./routes/places-router');
 const usersRouter = require('./routes/users-router');
 const HttpError = require('./models/http-error');
-const { cloudinaryConfig } = require('./config/cloudinaryConfig');
+const { cloudinaryConfig, uploader } = require('./config/cloudinaryConfig');
+const { getPublicIdForUrl } = require('./middleware/file-upload');
 
 const app = express();
 

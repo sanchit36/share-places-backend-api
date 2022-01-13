@@ -14,9 +14,7 @@ router.post(
   uploadToCloud,
   [
     check('name').notEmpty(),
-    check('email', 'please provide a valid email address.')
-      .normalizeEmail()
-      .isEmail(),
+    check('email', 'please provide a valid email address.').isEmail(),
     check('password', 'password should be alpha numeric 8 characters long ')
       .isAlphanumeric()
       .isLength({ min: 8 }),
